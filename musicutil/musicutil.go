@@ -1,4 +1,4 @@
-package testutil
+package musicutil
 
 import (
 	"strconv"
@@ -17,6 +17,8 @@ var (
 	HotelCal        Disc
 	Bad             Disc
 	Thriller        Disc
+	Discovery       Disc
+	RAM             Disc
 
 	Radiohead    Artist
 	TheSmiths    Artist
@@ -25,6 +27,7 @@ var (
 	Eagles       Artist
 	Oasis        Artist
 	MichaelJ     Artist
+	DaftPunk     Artist
 
 	DiscData   map[int]Disc
 	ArtistData map[int]Artist
@@ -80,7 +83,7 @@ func init() {
 		Year:  1976,
 		Id:    "6",
 	}
-	BeHereNow = Disc{
+	WhatsTheSt = Disc{
 		Title: "What's the story Morning Glory",
 		Year:  1997,
 		Id:    "7",
@@ -99,6 +102,16 @@ func init() {
 		Title: "Thriller",
 		Year:  1983,
 		Id:    "10",
+	}
+	Discovery = Disc{
+		Title: "Discovery",
+		Year:  2001,
+		Id:    "11",
+	}
+	RAM = Disc{
+		Title: "Random Access Machine",
+		Year:  2013,
+		Id:    "12",
 	}
 	Radiohead = Artist{
 		Id:      "1000",
@@ -140,7 +153,7 @@ func init() {
 		Name:    "Oasis",
 		Country: "UK",
 		Style:   "Rock",
-		Discs:   []Disc{WhatsTheSt, BeHereNow},
+		Discs:   []Disc{BeHereNow, WhatsTheSt},
 	}
 	MichaelJ = Artist{
 		Id:      "1006",
@@ -148,6 +161,13 @@ func init() {
 		Country: "US",
 		Style:   "Pop",
 		Discs:   []Disc{Thriller, Bad},
+	}
+	DaftPunk = Artist{
+		Id:      "1007",
+		Name:    "Daft Punk",
+		Country: "France",
+		Style:   "Electronic",
+		Discs:   []Disc{Discovery, RAM},
 	}
 
 	DiscData = map[int]Disc{
@@ -161,6 +181,8 @@ func init() {
 		8:  UseYourIllusion,
 		9:  Bad,
 		10: Thriller,
+		11: Discovery,
+		12: RAM,
 	}
 
 	ArtistData = map[int]Artist{
@@ -171,6 +193,7 @@ func init() {
 		1004: Eagles,
 		1005: Oasis,
 		1006: MichaelJ,
+		1007: DaftPunk,
 	}
 
 	discType = graphql.NewObject(graphql.ObjectConfig{
@@ -299,6 +322,12 @@ func init() {
 					return GetArtist(id), nil
 				},
 			},
+			"artists": &graphql.Field{
+				Type: graphql.NewList(artistType),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return GetAllArtists(), nil
+				},
+			},
 		},
 	})
 	MusicSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
@@ -318,4 +347,12 @@ func GetArtist(id int) Artist {
 		return artist
 	}
 	return Artist{}
+}
+
+func GetAllArtists() []Artist {
+	artists := []Artist{}
+	for _, artist := range ArtistData {
+		artists = append(artists, artist)
+	}
+	return artists
 }
