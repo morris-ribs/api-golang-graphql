@@ -1,4 +1,4 @@
-package testutil
+package musicutil
 
 import (
 	"strconv"
@@ -17,6 +17,8 @@ var (
 	HotelCal        Disc
 	Bad             Disc
 	Thriller        Disc
+	Discovery       Disc
+	RAM             Disc
 
 	Radiohead    Artist
 	TheSmiths    Artist
@@ -25,6 +27,7 @@ var (
 	Eagles       Artist
 	Oasis        Artist
 	MichaelJ     Artist
+	DaftPunk     Artist
 
 	DiscData   map[int]Disc
 	ArtistData map[int]Artist
@@ -100,6 +103,16 @@ func init() {
 		Year:  1983,
 		Id:    "10",
 	}
+	Discovery = Disc{
+		Title: "Discovery",
+		Year:  2001,
+		Id:    "11",
+	}
+	RAM = Disc{
+		Title: "Random Access Machine",
+		Year:  2013,
+		Id:    "12",
+	}
 	Radiohead = Artist{
 		Id:      "1000",
 		Name:    "Radiohead",
@@ -149,6 +162,13 @@ func init() {
 		Style:   "Pop",
 		Discs:   []Disc{Thriller, Bad},
 	}
+	DaftPunk = Artist{
+		Id:      "1007",
+		Name:    "Daft Punk",
+		Country: "France",
+		Style:   "Electronic",
+		Discs:   []Disc{Discovery, RAM},
+	}
 
 	DiscData = map[int]Disc{
 		1:  OkComputer,
@@ -161,6 +181,8 @@ func init() {
 		8:  UseYourIllusion,
 		9:  Bad,
 		10: Thriller,
+		11: Discovery,
+		12: RAM,
 	}
 
 	ArtistData = map[int]Artist{
@@ -171,6 +193,7 @@ func init() {
 		1004: Eagles,
 		1005: Oasis,
 		1006: MichaelJ,
+		1007: DaftPunk,
 	}
 
 	discType = graphql.NewObject(graphql.ObjectConfig{
