@@ -328,6 +328,12 @@ func init() {
 					return GetAllArtists(), nil
 				},
 			},
+			"discs": &graphql.Field{
+				Type: graphql.NewList(discType),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return GetAllDiscs(), nil
+				},
+			},
 		},
 	})
 	MusicSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
@@ -355,4 +361,12 @@ func GetAllArtists() []Artist {
 		artists = append(artists, artist)
 	}
 	return artists
+}
+
+func GetAllDiscs() []Disc {
+	discs := []Disc{}
+	for _, disc := range DiscData {
+		discs = append(discs, disc)
+	}
+	return discs
 }
