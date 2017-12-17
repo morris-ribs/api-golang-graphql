@@ -39,9 +39,10 @@ var (
 )
 
 type Disc struct {
-	Id    string
-	Title string
-	Year  int
+	Id     string
+	Title  string
+	Artist string
+	Year   int
 }
 
 type Artist struct {
@@ -54,64 +55,76 @@ type Artist struct {
 
 func init() {
 	OkComputer = Disc{
-		Title: "OK Computer",
-		Year:  1997,
-		Id:    "1",
+		Title:  "OK Computer",
+		Artist: "Radiohead",
+		Year:   1997,
+		Id:     "1",
 	}
 	TheQueenIsDead = Disc{
-		Title: "The Queen is dead",
-		Year:  1986,
-		Id:    "2",
+		Title:  "The Queen is dead",
+		Artist: "The Smiths",
+		Year:   1986,
+		Id:     "2",
 	}
 	BeHereNow = Disc{
-		Title: "Be Here Now",
-		Year:  1997,
-		Id:    "3",
+		Title:  "Be Here Now",
+		Artist: "Oasis",
+		Year:   1997,
+		Id:     "3",
 	}
 	AppetiteForDest = Disc{
-		Title: "Appetite for Destruction",
-		Year:  1987,
-		Id:    "4",
+		Title:  "Appetite for Destruction",
+		Artist: "Guns N' Roses ",
+		Year:   1987,
+		Id:     "4",
 	}
 	BackToBlack = Disc{
-		Title: "Back To Black",
-		Year:  2006,
-		Id:    "5",
+		Title:  "Back To Black",
+		Artist: "Amy Winehouse",
+		Year:   2006,
+		Id:     "5",
 	}
 	HotelCal = Disc{
-		Title: "Hotel California",
-		Year:  1976,
-		Id:    "6",
+		Title:  "Hotel California",
+		Artist: "Eagles",
+		Year:   1976,
+		Id:     "6",
 	}
 	WhatsTheSt = Disc{
-		Title: "What's the story Morning Glory",
-		Year:  1997,
-		Id:    "7",
+		Title:  "What's the story Morning Glory",
+		Artist: "Oasis",
+		Year:   1997,
+		Id:     "7",
 	}
 	UseYourIllusion = Disc{
-		Title: "Use Your Illusion",
-		Year:  1997,
-		Id:    "8",
+		Title:  "Use Your Illusion",
+		Artist: "Guns N' Roses",
+		Year:   1997,
+		Id:     "8",
 	}
 	Bad = Disc{
-		Title: "Bad",
-		Year:  1987,
-		Id:    "9",
+		Title:  "Bad",
+		Artist: "Michael Jackson",
+		Year:   1987,
+		Id:     "9",
 	}
 	Thriller = Disc{
-		Title: "Thriller",
-		Year:  1983,
-		Id:    "10",
+		Title:  "Thriller",
+		Artist: "Michael Jackson",
+		Year:   1983,
+		Id:     "10",
 	}
 	Discovery = Disc{
-		Title: "Discovery",
-		Year:  2001,
-		Id:    "11",
+		Title:  "Discovery",
+		Artist: "Daft Punk",
+		Year:   2001,
+		Id:     "11",
 	}
 	RAM = Disc{
-		Title: "Random Access Machine",
-		Year:  2013,
-		Id:    "12",
+		Title:  "Random Access Machine",
+		Artist: "Daft Punk",
+		Year:   2013,
+		Id:     "12",
 	}
 	Radiohead = Artist{
 		Id:      "1000",
@@ -216,6 +229,16 @@ func init() {
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					if disc, ok := p.Source.(Disc); ok {
 						return disc.Title, nil
+					}
+					return nil, nil
+				},
+			},
+			"artist": &graphql.Field{
+				Type:        graphql.String,
+				Description: "The Artist of the album.",
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					if disc, ok := p.Source.(Disc); ok {
+						return disc.Artist, nil
 					}
 					return nil, nil
 				},
@@ -336,8 +359,50 @@ func init() {
 			},
 		},
 	})
+
+	createDiscType := graphql.NewInputObject(graphql.InputObjectConfig{
+		Name: "CreateDisc",
+		Fields: graphql.InputObjectConfigFieldMap{
+			"title": &graphql.InputObjectFieldConfig{
+				Type:        graphql.String,
+				Description: "The title of the disc.",
+			},
+			"artist": &graphql.InputObjectFieldConfig{
+				Type:        graphql.String,
+				Description: "The artist of the disc.",
+			},
+			"year": &graphql.InputObjectFieldConfig{
+				Type:        graphql.Int,
+				Description: "The release year of the disc.",
+			},
+			"id": &graphql.InputObjectFieldConfig{
+				Type:        graphql.String,
+				Description: "The id of the disc.",
+			},
+		},
+	})
+
+	createDiscMutationType := graphql.NewObject(graphql.ObjectConfig{
+		Name: "CreateDiscMutation",
+		Fields: graphql.Fields{
+			"createDiscMutation": &graphql.Field{
+				Type: createDiscType,
+				Args: graphql.FieldConfigArgument{
+					"input": &graphql.ArgumentConfig{
+						Description: "An input with the disc details",
+						Type:        createDiscType,
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return GetAllDiscs(), nil
+				},
+			},
+		},
+	})
+
 	MusicSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
-		Query: queryType,
+		Query:    queryType,
+		Mutation: createDiscMutationType,
 	})
 }
 
