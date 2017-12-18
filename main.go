@@ -55,7 +55,6 @@ func GetDiscsFromApollo(w http.ResponseWriter, r *http.Request) {
 	}
 	query := apolloQuery["query"]
 	variables := apolloQuery["variables"]
-	fmt.Println(query)
 	result := graphql.Do(graphql.Params{
 		Schema:         musicutil.MusicSchema,
 		RequestString:  query.(string),

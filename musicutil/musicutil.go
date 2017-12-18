@@ -364,37 +364,44 @@ func init() {
 		Name: "CreateDisc",
 		Fields: graphql.InputObjectConfigFieldMap{
 			"title": &graphql.InputObjectFieldConfig{
-				Type:        graphql.String,
+				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The title of the disc.",
 			},
 			"artist": &graphql.InputObjectFieldConfig{
-				Type:        graphql.String,
+				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The artist of the disc.",
 			},
 			"year": &graphql.InputObjectFieldConfig{
-				Type:        graphql.Int,
+				Type:        graphql.NewNonNull(graphql.Int),
 				Description: "The release year of the disc.",
 			},
 			"id": &graphql.InputObjectFieldConfig{
-				Type:        graphql.String,
+				Type:        graphql.NewNonNull(graphql.String),
 				Description: "The id of the disc.",
 			},
 		},
 	})
 
-	createDiscMutationType := graphql.NewObject(graphql.ObjectConfig{
-		Name: "CreateDiscMutation",
+	mutationType := graphql.NewObject(graphql.ObjectConfig{
+		Name: "MutationType",
 		Fields: graphql.Fields{
 			"createDiscMutation": &graphql.Field{
-				Type: createDiscType,
+				Type: graphql.NewList(discType),
 				Args: graphql.FieldConfigArgument{
 					"input": &graphql.ArgumentConfig{
 						Description: "An input with the disc details",
-						Type:        createDiscType,
+						Type:        graphql.NewNonNull(createDiscType),
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return GetAllDiscs(), nil
+					var inp = p.Args["input"].(map[string]interface{})
+					discToAdd := Disc{
+						Title:  inp["title"].(string),
+						Artist: inp["artist"].(string),
+						Year:   inp["year"].(int),
+						Id:     inp["id"].(string),
+					}
+					return AddAlbum(discToAdd), nil
 				},
 			},
 		},
@@ -402,7 +409,7 @@ func init() {
 
 	MusicSchema, _ = graphql.NewSchema(graphql.SchemaConfig{
 		Query:    queryType,
-		Mutation: createDiscMutationType,
+		Mutation: mutationType,
 	})
 }
 
@@ -434,4 +441,9 @@ func GetAllDiscs() []Disc {
 		discs = append(discs, disc)
 	}
 	return discs
+}
+
+func AddAlbum(newDisc Disc) []Disc {
+	DiscData[len(DiscData)+1] = newDisc
+	return GetAllDiscs()
 }
