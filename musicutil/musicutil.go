@@ -1,8 +1,6 @@
 package musicutil
 
 import (
-	"strconv"
-
 	"github.com/graphql-go/graphql"
 )
 
@@ -38,6 +36,7 @@ var (
 	MusicSchema graphql.Schema
 )
 
+//Disc represents a disc
 type Disc struct {
 	Id     string
 	Title  string
@@ -45,6 +44,7 @@ type Disc struct {
 	Year   int
 }
 
+//Artist represents an artist (not used for now)
 type Artist struct {
 	Id      string
 	Name    string
@@ -198,6 +198,7 @@ func init() {
 		12: RAM,
 	}
 
+	// not used for now
 	ArtistData = map[int]Artist{
 		1000: Radiohead,
 		1001: TheSmiths,
@@ -256,101 +257,9 @@ func init() {
 		},
 	})
 
-	artistType = graphql.NewObject(graphql.ObjectConfig{
-		Name:        "Artist",
-		Description: "A representation of an artist and their info.",
-		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type:        graphql.NewNonNull(graphql.String),
-				Description: "The Identifier of the artist.",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					if artist, ok := p.Source.(Artist); ok {
-						return artist.Id, nil
-					}
-					return nil, nil
-				},
-			},
-			"name": &graphql.Field{
-				Type:        graphql.String,
-				Description: "The name of the artist.",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					if artist, ok := p.Source.(Artist); ok {
-						return artist.Name, nil
-					}
-					return nil, nil
-				},
-			},
-			"country": &graphql.Field{
-				Type:        graphql.String,
-				Description: "The artist country.",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					if artist, ok := p.Source.(Artist); ok {
-						return artist.Country, nil
-					}
-					return nil, nil
-				},
-			},
-			"discs": &graphql.Field{
-				Type:        graphql.NewList(discType),
-				Description: "The artist list of albums.",
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					if artist, ok := p.Source.(Artist); ok {
-						discs := []map[string]interface{}{}
-						for _, disc := range artist.Discs {
-							discs = append(discs, map[string]interface{}{
-								"title": disc.Title,
-								"id":    disc.Id,
-							})
-						}
-						return artist.Discs, nil
-					}
-					return nil, nil
-				},
-			},
-		},
-	})
-
 	queryType := graphql.NewObject(graphql.ObjectConfig{
 		Name: "Query",
 		Fields: graphql.Fields{
-			"disc": &graphql.Field{
-				Type: discType,
-				Args: graphql.FieldConfigArgument{
-					"id": &graphql.ArgumentConfig{
-						Description: "id of the disc",
-						Type:        graphql.NewNonNull(graphql.String),
-					},
-				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					id, err := strconv.Atoi(p.Args["id"].(string))
-					if err != nil {
-						return nil, err
-					}
-					return GetDisc(id), nil
-				},
-			},
-			"artist": &graphql.Field{
-				Type: artistType,
-				Args: graphql.FieldConfigArgument{
-					"id": &graphql.ArgumentConfig{
-						Description: "id of the artist",
-						Type:        graphql.NewNonNull(graphql.String),
-					},
-				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					id, err := strconv.Atoi(p.Args["id"].(string))
-					if err != nil {
-						return nil, err
-					}
-					return GetArtist(id), nil
-				},
-			},
-			"artists": &graphql.Field{
-				Type: graphql.NewList(artistType),
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return GetAllArtists(), nil
-				},
-			},
 			"discs": &graphql.Field{
 				Type: graphql.NewList(discType),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
@@ -401,7 +310,7 @@ func init() {
 						Year:   inp["year"].(int),
 						Id:     inp["id"].(string),
 					}
-					return AddAlbum(discToAdd), nil
+					return AddDisc(discToAdd), nil
 				},
 			},
 		},
@@ -413,28 +322,7 @@ func init() {
 	})
 }
 
-func GetDisc(id int) Disc {
-	if disc, ok := DiscData[id]; ok {
-		return disc
-	}
-	return Disc{}
-}
-
-func GetArtist(id int) Artist {
-	if artist, ok := ArtistData[id]; ok {
-		return artist
-	}
-	return Artist{}
-}
-
-func GetAllArtists() []Artist {
-	artists := []Artist{}
-	for _, artist := range ArtistData {
-		artists = append(artists, artist)
-	}
-	return artists
-}
-
+//GetAllDiscs retrieves all discs on the catalog
 func GetAllDiscs() []Disc {
 	discs := []Disc{}
 	for _, disc := range DiscData {
@@ -443,7 +331,9 @@ func GetAllDiscs() []Disc {
 	return discs
 }
 
-func AddAlbum(newDisc Disc) []Disc {
+//AddDisc is called every time a createDiscMutation is requested.
+// It adds a new disc to the list and returns the list with the newly added object
+func AddDisc(newDisc Disc) []Disc {
 	DiscData[len(DiscData)+1] = newDisc
 	return GetAllDiscs()
 }
