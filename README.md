@@ -2,7 +2,7 @@
 
 This is an API responding to GraphQL queries and mutations sent by an Angular-Apollo application.
 
-It is fully explained [here](https://medium.com/p/bd1c11426572/edit)
+It is fully explained [here](https://medium.com/@maumribeiro/my-first-graphql-server-in-go-responding-to-apollo-bd1c11426572)
 
 ## Pre-requisites
 
